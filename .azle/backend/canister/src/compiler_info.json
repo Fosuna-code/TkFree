@@ -1,0 +1,1 @@
+{"canister_methods":{"queries":[{"name":"get","composite":false}],"updates":[{"name":"add"},{"name":"inc"}],"callbacks":{"get":{},"add":{},"inc":{}}}}
