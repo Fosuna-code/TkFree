@@ -1,5 +1,6 @@
 service: () -> {
-    add: (nat) -> (nat);
-    get: () -> (nat) query;
-    inc: () -> (nat);
+    addId: (nat) -> (nat);
+    addName: (text) -> ();
+    getId: () -> (nat) query;
+    getName: () -> (text) query;
 }
