@@ -1,7 +1,5 @@
+//importing azle resources
 import { query, update, nat, Canister, Variant, text, Void, Principal, Record, nat64, Vec, StableBTreeMap, Opt, Result, Err, Ok, ic, Null } from 'azle';
-
-// Those variables are not stable yet (It's not a persistent-storage feature)
-// in the next version this code will store the information permanently and uses internet identity for validation
 
 // user declaration
 const User = Record({
@@ -12,6 +10,7 @@ const User = Record({
 });
 
 //event declaration
+//Each user can create an event
 const Event = Record({
     id: Principal,
     name: text,
@@ -33,6 +32,7 @@ const Event = Record({
 })
 
 //Ticket declaration
+//every user can buy a ticket
 const Ticket = Record({
     id: Principal,
     ticketNumber: nat,
@@ -41,7 +41,7 @@ const Ticket = Record({
     description: text,
 })
 
-
+// Using variant to manage errors
 const Errors = Variant({
     UserDoesNotExist: Principal,
     EventDoesNotExist: Principal,
@@ -49,12 +49,14 @@ const Errors = Variant({
     EVentSoldOUt: Principal
 })
 
+//Using stable storage 
 let users = StableBTreeMap(Principal, User, 0); 
 let Tickets = StableBTreeMap(Principal, Ticket, 1); 
 let Events = StableBTreeMap(Principal, Event, 2);
 
-
+//creating canisters
 export default Canister({
+    //User methods
     createUser: update([text], User, (username) => {
         const id = generateId();
         const user: typeof User = {
@@ -124,21 +126,22 @@ export default Canister({
     // methods to tickets
     createTicket: update([ Principal,Principal,text], Result(Ticket,Errors), (eventId,userId,description) => {
         const eventopt = Events.get(eventId);
+        // if event doesn't exist, it tigger an error
         if ('None' in eventopt) {
             return Err({
                 EventDoesNotExist: eventId
             });
         }
+        //if ticketCount is the same than amountticket user cannot buy ticket (create ticket)
         if ( eventopt.Some.ticketCount >=  eventopt.Some.amountTickets){
             return Err({
                 EVentSoldOUt: eventId
             });
         }
 
-        const ticketNumber = eventopt.Some.ticketCount;
-
+        const ticketNumber = eventopt.Some.ticketCount; //getting ticket count for this ticket
         const idTicket = generateId();
-        const ticket: typeof Ticket = {
+        const ticket: typeof Ticket = { // creating ticket
             id: idTicket,
             ticketNumber,
             eventId,
@@ -154,7 +157,7 @@ export default Canister({
         event.ticketCount++;
         Events.insert(eventId,event);
 
-        
+        // return ticket
         return Ok(ticket);
     }),
     readTicketById: query([Principal], Opt(Ticket), (id) => {
@@ -174,10 +177,6 @@ export default Canister({
 
         const ticket = TicketOpt.Some;
 
-        // user.recordingIds.forEach((recordingId) => {
-        //     recordings.remove(recordingId);
-        // });
-
         Tickets.remove(ticket.id);
 
         return Ok(ticket);
@@ -185,6 +184,7 @@ export default Canister({
 
 })
 
+//function to genere ID's
 function generateId(): Principal {
     const randomBytes = new Array(29)
         .fill(0)
