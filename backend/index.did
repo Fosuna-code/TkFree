@@ -1,6 +1,11 @@
 service: () -> {
-    addId: (nat) -> (nat);
-    addName: (text) -> ();
-    getId: () -> (nat) query;
-    getName: () -> (text) query;
+    createEvent: (text, text, text, text, text, nat, text, principal, nat64, text, nat) -> (record {id:principal; streetNumber:nat; State:text; country:text; civilTownship:text; streetName:text; name:text; createdAt:nat64; description:text; cityArea:text; ticketCount:nat; creatorUser:principal; amountTickets:nat; eventDate:nat64});
+    createTicket: (principal, principal, text) -> (variant {Ok:record {id:principal; eventId:principal; userId:principal; description:text; ticketNumber:nat}; Err:variant {TicketDoesNotExist:principal; EVentSoldOUt:principal; UserDoesNotExist:principal; EventDoesNotExist:principal}});
+    createUser: (text) -> (record {id:principal; username:text; createdAt:nat64; ticketsIds:vec principal});
+    deleteTicket: (principal) -> (variant {Ok:record {id:principal; eventId:principal; userId:principal; description:text; ticketNumber:nat}; Err:variant {TicketDoesNotExist:principal; EVentSoldOUt:principal; UserDoesNotExist:principal; EventDoesNotExist:principal}});
+    deleteUser: (principal) -> (variant {Ok:record {id:principal; username:text; createdAt:nat64; ticketsIds:vec principal}; Err:variant {TicketDoesNotExist:principal; EVentSoldOUt:principal; UserDoesNotExist:principal; EventDoesNotExist:principal}});
+    readTicketById: (principal) -> (opt record {id:principal; eventId:principal; userId:principal; description:text; ticketNumber:nat}) query;
+    readTickets: () -> (vec record {id:principal; eventId:principal; userId:principal; description:text; ticketNumber:nat}) query;
+    readUserById: (principal) -> (opt record {id:principal; username:text; createdAt:nat64; ticketsIds:vec principal}) query;
+    readUsers: () -> (vec record {id:principal; username:text; createdAt:nat64; ticketsIds:vec principal}) query;
 }
